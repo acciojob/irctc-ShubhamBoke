@@ -150,7 +150,7 @@ public class TrainService {
                 int idx = stationList.indexOf(station);
                 arrivalTime = dt.plusHours(idx);
 
-                if(arrivalTime.isAfter(startTime) && arrivalTime.isBefore(endTime))
+                if(arrivalTime.compareTo(startTime) >= 0 && arrivalTime.compareTo(endTime) <= 0)
                     res.add(train.getTrainId());
             }
         }

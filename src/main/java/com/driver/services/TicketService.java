@@ -47,18 +47,18 @@ public class TicketService {
        Ticket ticket = new Ticket();
         Optional<Train> optionalTrain = trainRepository.findById(bookTicketEntryDto.getTrainId());
         if(!optionalTrain.isPresent())
-            throw new Exception();
-
+            throw new Exception("Invalid Train");
        Train train = optionalTrain.get();
+
+        String rout = train.getRoute();
+        HashSet<String> stationSet = new HashSet<>(Arrays.asList(rout.split(",")));
+        if(!stationSet.contains(bookTicketEntryDto.getFromStation()) || !stationSet.contains(bookTicketEntryDto.getToStation()))
+            throw new Exception("Invalid stations");
+
        if(bookTicketEntryDto.getNoOfSeats() > trainService.calculateAvailableSeats(new SeatAvailabilityEntryDto(train.getTrainId(), bookTicketEntryDto.getFromStation(), bookTicketEntryDto.getToStation()))){
            throw new Exception();
        }
 
-       String rout = train.getRoute();
-        HashSet<String> stationSet = new HashSet<>(Arrays.asList(rout.split(",")));
-
-        if(!stationSet.contains(bookTicketEntryDto.getFromStation()) || !stationSet.contains(bookTicketEntryDto.getToStation()))
-            throw new Exception();
 
         List<String> stList = Arrays.asList(rout.split(","));
         int si = stList.indexOf(bookTicketEntryDto.getFromStation());
@@ -67,7 +67,9 @@ public class TicketService {
 
         List<Passenger> passengerList = new ArrayList<>();
         for(int id: bookTicketEntryDto.getPassengerIds()){
-            Passenger p = passengerRepository.findById(id).get();
+            Optional<Passenger> optionalPassenger = passengerRepository.findById(id);
+            if(!optionalPassenger.isPresent()) throw new Exception("Invalid Passenger");
+            Passenger p = optionalPassenger.get();
             passengerList.add(p);
         }
         ticket.setPassengersList(passengerList);
@@ -83,6 +85,8 @@ public class TicketService {
 
         train.getBookedTickets().add(ticket);
         passengerRepository.findById(bookTicketEntryDto.getBookingPersonId()).get().getBookedTickets().add(ticket);
+        trainRepository.save(train);
+
 
         return ticket.getTicketId();
     }
