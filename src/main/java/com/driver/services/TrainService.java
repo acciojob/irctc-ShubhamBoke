@@ -104,7 +104,7 @@ public class TrainService {
                 }
             }
         }else {
-            throw new Exception("Train is not passing from this station");
+            throw new Exception();
         }
 
         return res;

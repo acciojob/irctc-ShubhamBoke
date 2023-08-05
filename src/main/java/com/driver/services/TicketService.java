@@ -47,18 +47,18 @@ public class TicketService {
        Ticket ticket = new Ticket();
         Optional<Train> optionalTrain = trainRepository.findById(bookTicketEntryDto.getTrainId());
         if(!optionalTrain.isPresent())
-            throw new Exception("Invalid train id");
+            throw new Exception();
 
        Train train = optionalTrain.get();
        if(bookTicketEntryDto.getNoOfSeats() > trainService.calculateAvailableSeats(new SeatAvailabilityEntryDto(train.getTrainId(), bookTicketEntryDto.getFromStation(), bookTicketEntryDto.getToStation()))){
-           throw new Exception("Less tickets are available");
+           throw new Exception();
        }
 
        String rout = train.getRoute();
         HashSet<String> stationSet = new HashSet<>(Arrays.asList(rout.split(",")));
 
         if(!stationSet.contains(bookTicketEntryDto.getFromStation()) || !stationSet.contains(bookTicketEntryDto.getToStation()))
-            throw new Exception("Invalid stations");
+            throw new Exception();
 
         List<String> stList = Arrays.asList(rout.split(","));
         int si = stList.indexOf(bookTicketEntryDto.getFromStation());
